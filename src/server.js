@@ -1,8 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { connectDB, sequelize } = require("./config/db"); // Importa a instância do sequelize
-
+const { connectDB, sequelize } = require("./config/db");
 const authRoutes = require("./routes/auth");
 const solicitacoesRoutes = require("./routes/solicitacoes");
 const usersRoutes = require("./routes/users");
@@ -15,19 +14,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Adiciona a sincronização do Sequelize para criar ou atualizar as tabelas
-connectDB()
-  .then(() => {
-    return sequelize.sync();
-  })
-  .then(() => {
+// Inicia o servidor imediatamente, na porta que a Railway fornecer
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+// Tenta conectar e sincronizar o banco de dados de forma assíncrona,
+// sem bloquear a inicialização do servidor.
+(async () => {
+  try {
+    await connectDB();
+    await sequelize.sync();
     console.log("Banco de dados sincronizado com sucesso!");
-    const PORT = process.env.PORT || 3001;
-    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("Erro ao sincronizar o banco de dados:", err);
-  });
+  }
+})();
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
