@@ -49,28 +49,43 @@ const Solicitacao = sequelize.define(
 // GET /api/solicitacoes
 router.get("/", async (req, res, next) => {
   try {
-    const { orientador_email } = req.query;
+    const { orientador_email, orientador_id, orientando_id } = req.query;
 
     let query = `
-        SELECT s.id,
-        s.temaTCC,
-        s.descricao,
-        LOWER(s.status) AS status,
-        s.dataSolicitacao,
-        s.orientador_id,
-        s.orientando_id,
-        u.name AS orientando_nome,
-        u.email AS orientando_email
-    FROM Solicitacoes s
-    INNER JOIN Users u ON u.id = s.orientando_id
+      SELECT s.id,
+             s.temaTCC,
+             s.descricao,
+             LOWER(s.status) AS status,
+             s.dataSolicitacao,
+             s.orientador_id,
+             s.orientando_id,
+             u.name AS orientando_nome,
+             u.email AS orientando_email
+      FROM Solicitacoes s
+      INNER JOIN Users u ON u.id = s.orientando_id
     `;
 
+    const whereClauses = [];
     const replacements = [];
 
     if (orientador_email) {
-      query +=
-        " INNER JOIN Users o ON o.id = s.orientador_id WHERE o.email = ?";
+      query += " INNER JOIN Users o ON o.id = s.orientador_id";
+      whereClauses.push("o.email = ?");
       replacements.push(orientador_email);
+    }
+
+    if (orientador_id) {
+      whereClauses.push("s.orientador_id = ?");
+      replacements.push(orientador_id);
+    }
+
+    if (orientando_id) {
+      whereClauses.push("s.orientando_id = ?");
+      replacements.push(orientando_id);
+    }
+
+    if (whereClauses.length > 0) {
+      query += " WHERE " + whereClauses.join(" AND ");
     }
 
     const [results] = await sequelize.query(query, { replacements });

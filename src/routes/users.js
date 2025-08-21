@@ -30,6 +30,24 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    qtd_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    max_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 10,
+    },
+    tot_orientacoes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    formacao: {
+      type: DataTypes.TEXT,
+    },
+    area_atuacao: {
+      type: DataTypes.TEXT,
+    },
   },
   {
     tableName: "Users",
@@ -73,6 +91,30 @@ router.post("/", async (req, res, next) => {
     res
       .status(201)
       .json({ id: newUser.id, name: newUser.name, email: newUser.email });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/orientadores", async (req, res, next) => {
+  try {
+    const orientadores = await User.findAll({
+      where: {
+        userType: "orientador",
+      },
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "qtd_orientandos",
+        "max_orientandos",
+        "tot_orientacoes",
+        "formacao",
+        "area_atuacao",
+      ],
+    });
+    console.log(orientadores);
+    res.json(orientadores);
   } catch (err) {
     next(err);
   }
