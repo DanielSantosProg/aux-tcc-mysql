@@ -120,4 +120,56 @@ router.get("/orientadores", async (req, res, next) => {
   }
 });
 
+// PATCH /api/users/config
+router.patch("/config", async (req, res, next) => {
+  try {
+    const { userId, nome, password } = req.body;
+
+    if (!userId || !nome) {
+      return res
+        .status(400)
+        .json({ message: "userId e nome são obrigatórios." });
+    }
+
+    const updateData = { name: nome };
+
+    // Se senha foi enviada, hasheia antes de atualizar
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const [updated] = await User.update(updateData, { where: { id: userId } });
+
+    if (updated === 0) {
+      return res.status(404).json({ message: "Usuário não encontrado." });
+    }
+
+    res.json({ message: "Configurações atualizadas com sucesso." });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/users/config/orientador
+router.patch("/config/orientador", async (req, res, next) => {
+  try {
+    const { userId, qtdOrientacoes, maxOrientacoes, formacao, areaAtuacao } =
+      req.body;
+    const updatedOrientador = await User.update(
+      {
+        qtd_orientandos: qtdOrientacoes,
+        max_orientandos: maxOrientacoes,
+        formacao: formacao,
+        area_atuacao: areaAtuacao,
+      },
+      { where: { id: userId } }
+    );
+    console.log(updatedOrientador);
+    res.json(updatedOrientador);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
