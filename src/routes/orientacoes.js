@@ -34,13 +34,43 @@ const User = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     email: {
       type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    userType: {
+      type: DataTypes.ENUM("orientador", "orientando"),
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    qtd_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    max_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 10,
+    },
+    tot_orientacoes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    formacao: {
+      type: DataTypes.TEXT,
+    },
+    area_atuacao: {
+      type: DataTypes.TEXT,
     },
   },
   {
@@ -98,6 +128,16 @@ router.post("/", async (req, res, next) => {
       orientador_id,
       orientando_id,
     });
+
+    await User.increment(
+      { qtd_orientandos: 1 },
+      { where: { id: orientador_id } }
+    );
+
+    await User.increment(
+      { tot_orientacoes: 1 },
+      { where: { id: orientador_id } }
+    );
 
     res.status(201).json({ id: newOrientacao.id });
   } catch (err) {

@@ -15,7 +15,6 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,
@@ -23,16 +22,34 @@ const User = sequelize.define(
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
+      allowNull: false,
     },
     userType: {
-      type: DataTypes.ENUM("admin", "orientador", "orientando"),
+      type: DataTypes.ENUM("orientador", "orientando"),
       allowNull: false,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    qtd_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    max_orientandos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 10,
+    },
+    tot_orientacoes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    formacao: {
+      type: DataTypes.TEXT,
+    },
+    area_atuacao: {
+      type: DataTypes.TEXT,
     },
   },
   {
